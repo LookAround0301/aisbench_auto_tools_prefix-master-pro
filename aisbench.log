@@ -1,0 +1,22 @@
+/usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/benchmark/registry.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+04/11 16:47:41 - AISBench - INFO - Loading gsm8k_gen_0_shot_cot_str_perf: /usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/benchmark/configs/./datasets/gsm8k/gsm8k_gen_0_shot_cot_str_perf.py
+Traceback (most recent call last):
+  File "/usr/local/python3.11.10/bin/ais_bench", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/benchmark/cli/main.py", line 162, in main
+    cfg = get_config_from_arg(args)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/benchmark/utils/run.py", line 100, in get_config_from_arg
+    for model in match_cfg_file(models_dir, [model_arg]):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/benchmark/utils/file.py", line 76, in match_cfg_file
+    raise ValueError(err_msg)
+ValueError: The provided pattern matches 0 or more than one config. Please verify your pattern and try again. You may use tools/list_configs.py to list or locate the configurations.
++------------------------+
+| Not matched patterns   |
+|------------------------|
+| vllm_api_chat_temp     |
++------------------------+
+[ERROR] 2026-04-11-16:47:41 (PID:763, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
