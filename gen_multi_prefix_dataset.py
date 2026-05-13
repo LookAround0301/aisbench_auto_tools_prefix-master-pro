@@ -32,6 +32,10 @@ import re
 from typing import List, Tuple, Optional
 
 from transformers import AutoTokenizer
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = None
 
 ALLOWED_RE = re.compile(r'^[A-Za-z0-9 ]+$')
 
@@ -532,37 +536,44 @@ def create_multi_prefix_dataset(
     remaining = total
     groups_left = num_prefixes
 
-    with open(dataset_jsonl_path, "w", encoding="utf-8") as df:
-        for g_idx in range(num_prefixes):
-            if remaining <= 0:
-                break
-            group_target = int(math.ceil(remaining / groups_left))  # 该组计划条数
-            groups_left -= 1
-            # 该组使用的前缀文本
-            prefix_text = loaded_prefix_texts[g_idx] if g_idx < len(loaded_prefix_texts) else ""
-            prefix_ids_fixed = encode_ids(tokenizer, prefix_text) if prefix_text else []
+    progress = tqdm(total=total, desc="Generating dataset", unit="row") if tqdm else None
+    try:
+        with open(dataset_jsonl_path, "w", encoding="utf-8") as df:
+            for g_idx in range(num_prefixes):
+                if remaining <= 0:
+                    break
+                group_target = int(math.ceil(remaining / groups_left))  # 该组计划条数
+                groups_left -= 1
+                # 该组使用的前缀文本
+                prefix_text = loaded_prefix_texts[g_idx] if g_idx < len(loaded_prefix_texts) else ""
+                prefix_ids_fixed = encode_ids(tokenizer, prefix_text) if prefix_text else []
 
-            for i in range(group_target):
-                # 位段（控制"额外公共前缀"<=16）
-                bit_ids = idx_to_bit_ids(i, bits=bits, bit0_id=bit0_id, bit1_id=bit1_id)
-                cur_ids = list(prefix_ids_fixed) + bit_ids
+                for i in range(group_target):
+                    # 位段（控制"额外公共前缀"<=16）
+                    bit_ids = idx_to_bit_ids(i, bits=bits, bit0_id=bit0_id, bit1_id=bit1_id)
+                    cur_ids = list(prefix_ids_fixed) + bit_ids
 
-                # 先用随机"空格型安全 token"填充至接近目标，再闭环修正
-                # 直接用 len(cur_ids) 估算，避免多余的 decode→filter→encode
-                remain_len = max(0, tokens - len(cur_ids))
-                for _ in range(remain_len):
-                    tid = (space_ids[rng.randrange(len(space_ids))] if space_ids else filler_id)
-                    cur_ids.append(tid)
+                    # 先用随机"空格型安全 token"填充至接近目标，再闭环修正
+                    # 直接用 len(cur_ids) 估算，避免多余的 decode→filter→encode
+                    remain_len = max(0, tokens - len(cur_ids))
+                    for _ in range(remain_len):
+                        tid = (space_ids[rng.randrange(len(space_ids))] if space_ids else filler_id)
+                        cur_ids.append(tid)
 
-                final_ids = fix_to_target_token_len_by_ids(
-                    tokenizer, cur_ids, tokens,
-                    add_token_id=(space_ids[0] if space_ids else filler_id)
-                )
-                q = decode_ids(tokenizer, final_ids)
-                if not is_allowed_text(q):
-                    q = filter_allowed(q)
-                df.write(json.dumps({"question": q, "answer": ""}, ensure_ascii=True))
-                df.write("\n")
+                    final_ids = fix_to_target_token_len_by_ids(
+                        tokenizer, cur_ids, tokens,
+                        add_token_id=(space_ids[0] if space_ids else filler_id)
+                    )
+                    q = decode_ids(tokenizer, final_ids)
+                    if not is_allowed_text(q):
+                        q = filter_allowed(q)
+                    df.write(json.dumps({"question": q, "answer": ""}, ensure_ascii=True))
+                    df.write("\n")
+                    if progress:
+                        progress.update(1)
 
-            remaining -= group_target
+                remaining -= group_target
+    finally:
+        if progress:
+            progress.close()
     return prefix_jsonl_path, dataset_jsonl_path
