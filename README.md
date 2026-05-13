@@ -12,5 +12,8 @@ pip uninstall -y ais-bench-benchmark
 rm -rf /usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench/
 rm -rf /usr/local/python3.11.10/lib/python3.11/site-packages/ais_bench-*.egg-info
 
-# 若不确定 Python 路径，可使用以下命令查找
-python3 -c "import site; print(site.getsitepackages())"
+# 下载新版本aisbench
+git clone https://github.com/AISBench/benchmark.git
+pip3 install -e ./ --use-pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip3 install -r requirements/api.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip3 install -r requirements/extra.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
