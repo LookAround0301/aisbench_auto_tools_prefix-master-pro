@@ -103,7 +103,7 @@ def generate_aisbench_command(DEFAULT_PERFORMANCE_TEST):
     if test_accuracy:
         ais_bench_cmd = "ais_bench --models vllm_api_chat_temp --datasets gsm8k_gen_0_shot_cot_str_perf --dump-eval-details"
     else:
-        ais_bench_cmd = "ais_bench --models vllm_api_chat_temp --datasets gsm8k_gen_0_shot_cot_str_perf --mode perf --debug"
+        ais_bench_cmd = "ais_bench --models vllm_api_chat_temp --datasets gsm8k_gen_0_shot_cot_str_perf --mode perf --debug --num-warmups 0"
     return ais_bench_cmd
 
 def generate_test_dataset(src_file, dst_dir):
