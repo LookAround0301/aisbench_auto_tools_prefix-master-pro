@@ -1,5 +1,5 @@
 原链接参考
-https://wiki.huawei.com/domains/143914/wiki/137614/WIKI202511048896614
+https://github.com/rayn-zzz/aisbench_auto_tools_prefix/tree/main
 
 `使用前请先下载最新版本的 `aisbench`，请按以下步骤**彻底卸载**镜像自带的旧版本，并重新从源码安装。`
 
